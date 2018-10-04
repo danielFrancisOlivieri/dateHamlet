@@ -5,23 +5,28 @@ from nltk.corpus import brown
 from urllib import request
 from str import join
 
+# url for project gutenberg's hamlet
+# NLTK actually has a corpora of Shakespeare's plays
+# but I don't know how to look at the plan txt files for that
+# and it makes my job so much easier if I can actually look at the 
+# text I'm working with
+# also, I just like loading things over the internet
 url = "http://www.gutenberg.org/files/1524/1524-0.txt"
 
-response = request.urlopen(url)
+response = request.urlopen(url) # checks for response
 
-hamlet = response.read().decode('utf8')
+hamlet = response.read().decode('utf8') # puts it into utf
 
+tokens = sent_tokenize(hamlet) # we've gotta tokenize hamlet before we can use it
 
-
-tokens = sent_tokenize(hamlet)
-
-
-hamlet = nltk.Text(tokens)
-
-type(hamlet)
+hamlet = nltk.Text(tokens) # now we turn it into an nltk text so we can actually use it
 
 
 def getFullLine(index):
+    """
+    This takes in an index of a character's speech tag and then grabs all their text until it runs into the next
+    character's speech tag. It does not include either tags in the list it returns. 
+    """
     firstLine = word_tokenize(hamlet[index])
     sentenceList = [firstLine]
     while True:
@@ -38,6 +43,10 @@ def getFullLine(index):
 # this function returns True if the argument is HAMLET
 # case sensitive
 def isHamletLine(line):
+    """
+     determines if a sentence is a HAMLET speech tag
+        I can rewrite it for any other character
+     """
     print (line)
     for s in line:
         if "HAMLET" in line:
@@ -48,35 +57,35 @@ def isHamletLine(line):
                 return False
 
 
-
+# this line grabs all of Hamlet's speech tags throughout the play 
 hamletSpeechTags = [i for i, sent in enumerate(hamlet) if isHamletLine(sent)]
 
 
-for i in hamletSpeechTags:
-    print(hamlet[i] + " " + str(i))
-
-print(hamlet[3490])
-
+# this line adds one to each of the index so that it starts at the correct place
+# we don't want each string to begin with HAMLET.
 allHamletLinesIndex = [x+1 for x in hamletSpeechTags]
 
 
+finalString = ""
+
 for i in allHamletLinesIndex:    
-    fullLine = getFullLine(i)
+    fullLine = getFullLine(i)   
     flat_list = [item for sublist in fullLine for item in sublist]
-    finalString = " ".join(flat_list)
-    print(finalString)
-
-
-
-
-
-fdist = nltk.FreqDist(allOfHamletsLines)
-
-'''
-1297, 1302, 1307, 1311, 1315, 1320, 1324, 1327, 1331, 1335, 1356, 1378, 1383, 1394, 1401, 1409, 1416, 1421, 1428, 1512, 1525, 1530, 1535, 1540, 1544, 1548, 1554, 1559, 1570, 1575, 1584, 1616, 1626, 1633, 1644, 1649, 1654, 1658, 1676, 1685, 1689, 1694, 1700, 1707, 1712, 1716, 1720, 1724, 1728, 1732, 1736, 1742, 1762, 1767, 1771, 1777, 1781, 1798, 1818, 1826, 1830, 1835, 1839, 1850, 1854, 1858, 1864, 1871, 1882, 1887, 1892, 1897, 1901, 1910, 1913, 1917, 1921, 1925, 1929, 1934, 1938, 1945, 1950, 1955, 1960, 1964, 1971, 1976, 1980, 1984, 1990, 1999, 2003, 2007, 2011, 2015
-
-'''
-
-
+    asString = " ".join(flat_list)
+    finalString = finalString + asString
     
 
+tokenized_finalString = word_tokenize(finalString)
+
+hamletsLines = nltk.Text(tokenized_finalString)
+
+    
+fdist = nltk.FreqDist(hamletsLines)
+
+mostCommon = fdist.most_common(150)
+
+print(mostCommon[3][0])
+
+longerMostCommon = [w for w in mostCommon if len(w[0]) > 4 ]
+
+print(longerMostCommon)
