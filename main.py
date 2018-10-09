@@ -1,4 +1,12 @@
 # should you date Hamlet?
+# try principle component analysis and classifiers
+# you take some data and graph it 
+# How is this data broken up into sub groups?
+# finds things that generally fit into certain groups
+# It can classify
+# Data classifiers
+# recognize the similarities of texts
+# there's an edx course on it
 import nltk, re, pprint
 from nltk import word_tokenize, sent_tokenize
 from nltk.corpus import brown
@@ -17,75 +25,57 @@ response = request.urlopen(url) # checks for response
 
 hamlet = response.read().decode('utf8') # puts it into utf
 
-tokens = sent_tokenize(hamlet) # we've gotta tokenize hamlet before we can use it
+tokens = word_tokenize(hamlet) # we've gotta tokenize hamlet before we can use it
 
 hamlet = nltk.Text(tokens) # now we turn it into an nltk text so we can actually use it
 
+#def getSpeechIndexes
+
+hamlet = hamlet[500:41890] # sets hamlet to be just the text of the actual play
+
+print(','.isalpha())
+
+allCharacterLines = []
+
+for idx, val in enumerate(hamlet):
+    if isCharacter('hamlet', val):
+        fullLine = getFullLine(idx)
+        allCharacterLines.append(fullLine)
+        
+print(len(allCharacterLines))
+    
+for i in allCharacterLines:
+    if "jest" in i:
+        print(i)
+
+def isSpeechTag(word):
+    if word.isupper():
+        if len(word) > 2:
+            return True
+    return False
+
+def isCharacter(characterInPlay, word):
+    characterInPlay = characterInPlay.upper() # makes sure the name is in uppercase
+    
+    if word == characterInPlay:
+        return True
+    else:
+        return False
+
 
 def getFullLine(index):
-    """
-    This takes in an index of a character's speech tag and then grabs all their text until it runs into the next
-    character's speech tag. It does not include either tags in the list it returns. 
-    """
-    firstLine = word_tokenize(hamlet[index])
-    sentenceList = [firstLine]
-    while True:
-        index += 1
-        line = word_tokenize(hamlet[index])
-        if line[0].isupper():
-            return sentenceList
+    index += 1 # moves us past the original value 
+    fullLine = "" # puts first word in there
+    while True: 
+        index += 1 # increments index      
+        currentWord = hamlet[index]
+        
+        if isSpeechTag(currentWord):
+            return fullLine[1:]
         else:
-            sentenceList.append(line)
-      
-
-    return sentenceList
-
-# this function returns True if the argument is HAMLET
-# case sensitive
-def isHamletLine(line):
-    """
-     determines if a sentence is a HAMLET speech tag
-        I can rewrite it for any other character
-     """
-    print (line)
-    for s in line:
-        if "HAMLET" in line:
-            if len(line) < 15:
-                
-                return True
+            if currentWord.isalpha():
+                fullLine += " " + currentWord
             else:
-                return False
+                fullLine += currentWord
 
-
-# this line grabs all of Hamlet's speech tags throughout the play 
-hamletSpeechTags = [i for i, sent in enumerate(hamlet) if isHamletLine(sent)]
-
-
-# this line adds one to each of the index so that it starts at the correct place
-# we don't want each string to begin with HAMLET.
-allHamletLinesIndex = [x+1 for x in hamletSpeechTags]
-
-
-finalString = ""
-
-for i in allHamletLinesIndex:    
-    fullLine = getFullLine(i)   
-    flat_list = [item for sublist in fullLine for item in sublist]
-    asString = " ".join(flat_list)
-    finalString = finalString + asString
-    
-
-tokenized_finalString = word_tokenize(finalString)
-
-hamletsLines = nltk.Text(tokenized_finalString)
-
-    
-fdist = nltk.FreqDist(hamletsLines)
-
-mostCommon = fdist.most_common(150)
-
-print(mostCommon[3][0])
-
-longerMostCommon = [w for w in mostCommon if len(w[0]) > 4 ]
-
-print(longerMostCommon)
+print(getFullLine(9951))
